@@ -1,0 +1,23 @@
+{
+  "id": "./",
+  "name": "UP Studio | آپ استودیو",
+  "short_name": "UP Studio",
+  "description": "استودیو عکاسی مد، پرتره، ورزشی و هنری — رزرو، گالری، دستیار و برنامه‌ریز عکاسی",
+  "lang": "fa",
+  "dir": "rtl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F7F6F3",
+  "theme_color": "#F7F6F3",
+  "categories": ["photo", "business", "lifestyle"],
+  "icons": [
+    { "src": "./icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "رزرو استودیو", "url": "./#/booking", "icons": [{ "src": "./icons/icon-512.png", "sizes": "512x512" }] },
+    { "name": "گالری", "url": "./#/gallery", "icons": [{ "src": "./icons/icon-512.png", "sizes": "512x512" }] }
+  ]
+}
