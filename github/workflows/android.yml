@@ -1,0 +1,162 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android-build
+  cancel-in-progress: true
+
+env:
+  LOGO_DRIVE_ID: 1t4qeR96M1cuyuTiPq-XUlrZWiem4ydbG # Logo_Black_[Site]_081227.png
+
+jobs:
+  android:
+    name: UP Studio · Android
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: "platform-tools platforms;android-35 build-tools;35.0.0"
+
+      - name: Install dependencies
+        run: npm ci || npm install
+
+      - name: Build web app
+        run: npm run build
+
+      - name: Add Android platform
+        run: npx cap add android
+
+      # --- App icon: use the official logo from the UP Studio Drive folder; fall back to the committed icon ---
+      - name: Prepare icon from official logo
+        id: logo
+        continue-on-error: true
+        run: |
+          set -e
+          mkdir -p assets
+          curl -fsSL "https://drive.google.com/uc?export=download&id=${LOGO_DRIVE_ID}" -o /tmp/logo.png
+          file /tmp/logo.png | grep -qi "PNG image"
+          convert /tmp/logo.png -trim +repage -resize 620x620 -gravity center \
+            -background "#F7F6F3" -extent 1024x1024 assets/logo.png
+          convert /tmp/logo.png -trim +repage -channel RGB -negate +channel -resize 620x620 -gravity center \
+            -background "#141414" -extent 1024x1024 assets/logo-dark.png
+          echo "Official logo prepared."
+
+      - name: Fallback icon
+        run: |
+          mkdir -p assets
+          [ -f assets/logo.png ] || cp public/icons/icon-512.png assets/logo.png
+          [ -f assets/logo-dark.png ] || cp assets/logo.png assets/logo-dark.png
+
+      - name: Generate launcher icons & splash
+        continue-on-error: true
+        run: |
+          npx --yes @capacitor/assets generate --android \
+            --iconBackgroundColor '#F7F6F3' --iconBackgroundColorDark '#141414' \
+            --splashBackgroundColor '#F7F6F3' --splashBackgroundColorDark '#141414'
+
+      - name: Sync Capacitor
+        run: npx cap sync android
+
+      # --- Signing key: use repository secret if present, otherwise generate one (and publish it as an artifact) ---
+      - name: Prepare keystore
+        id: keystore
+        env:
+          KS_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KS_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KS_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -n "$KS_B64" ]; then
+            echo "$KS_B64" | base64 -d > release.keystore
+            echo "KS_PASS=${KS_PASS}" >> $GITHUB_ENV
+            echo "KS_ALIAS=${KS_ALIAS:-upstudio}" >> $GITHUB_ENV
+            echo "KEY_PASS=${KEY_PASS:-$KS_PASS}" >> $GITHUB_ENV
+            echo "generated=false" >> $GITHUB_OUTPUT
+            echo "Using keystore from secrets."
+          else
+            keytool -genkeypair -v -keystore release.keystore -alias upstudio \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -storepass upstudio2025 -keypass upstudio2025 \
+              -dname "CN=UP Studio, OU=Mobile, O=UP Studio, L=Tehran, C=IR"
+            echo "KS_PASS=upstudio2025" >> $GITHUB_ENV
+            echo "KS_ALIAS=upstudio" >> $GITHUB_ENV
+            echo "KEY_PASS=upstudio2025" >> $GITHUB_ENV
+            echo "generated=true" >> $GITHUB_OUTPUT
+            echo "::warning::No ANDROID_KEYSTORE_BASE64 secret found — a temporary keystore was generated. Save it as a secret to keep future updates installable over this build (see MOBILE.md)."
+          fi
+
+      - name: Build release APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon --stacktrace
+
+      - name: Align & sign APK
+        run: |
+          BT="$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)"
+          UNSIGNED="$(ls android/app/build/outputs/apk/release/*-unsigned.apk | head -1)"
+          "$BT/zipalign" -p -f 4 "$UNSIGNED" aligned.apk
+          "$BT/apksigner" sign --ks release.keystore --ks-key-alias "$KS_ALIAS" \
+            --ks-pass "pass:$KS_PASS" --key-pass "pass:$KEY_PASS" \
+            --out "UP-Studio.apk" aligned.apk
+          "$BT/apksigner" verify --print-certs "UP-Studio.apk"
+          cp UP-Studio.apk "UP-Studio-build${{ github.run_number }}.apk"
+          ls -lh *.apk
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: UP-Studio-APK
+          path: UP-Studio.apk
+          retention-days: 90
+
+      - name: Upload generated keystore (keep it safe!)
+        if: steps.keystore.outputs.generated == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: upstudio-release-keystore
+          path: release.keystore
+          retention-days: 90
+
+      - name: Publish to GitHub Release (public download link)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: android-latest
+          name: "UP Studio — Android (latest)"
+          body: |
+            📱 **UP Studio / آپ استودیو** — نسخهٔ اندروید
+
+            - شناسه: `com.upstudio.app`
+            - بیلد: #${{ github.run_number }} · کامیت `${{ github.sha }}`
+
+            **نصب:** فایل `UP-Studio.apk` را دانلود کنید، روی گوشی باز کنید و «نصب از منابع ناشناس» را برای مرورگر/فایل‌منیجر اجازه دهید.
+          files: |
+            UP-Studio.apk
+            UP-Studio-build${{ github.run_number }}.apk
+          prerelease: false
+          make_latest: true
