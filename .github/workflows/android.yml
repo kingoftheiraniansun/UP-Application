@@ -29,13 +29,21 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-          cache: gradle
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Build web application
         run: npm run build
+
+      - name: Create Android project if needed
+        run: |
+          if [ ! -d "android" ]; then
+            echo "Android project not found. Creating it with Capacitor..."
+            npx cap add android
+          else
+            echo "Android project already exists."
+          fi
 
       - name: Sync Capacitor Android
         run: npx cap sync android
@@ -47,27 +55,26 @@ jobs:
         working-directory: android
         run: ./gradlew assembleRelease --stacktrace
 
-      - name: Find APK
+      - name: Find generated APK
         run: |
+          echo "Searching for generated APK..."
           find android/app/build/outputs/apk -type f -name "*.apk" -print
 
-      - name: Rename APK
+      - name: Prepare APK
         run: |
           cp android/app/build/outputs/apk/release/app-release.apk UP-Studio.apk
+          ls -lh UP-Studio.apk
 
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: android-latest
-          name: UP Studio — Android (latest)
-          body: |
-            ## UP Studio Android
-
-            Latest Android APK built automatically by GitHub Actions.
-
-            **App ID:** `com.upstudio.app`
-
-            Download `UP-Studio.apk` below and install it on your Android device.
-          files: UP-Studio.apk
-          overwrite_files: true
-          make_latest: true
+      - name: Create or update GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view android-latest >/dev/null 2>&1; then
+            echo "Updating existing release..."
+            gh release upload android-latest UP-Studio.apk --clobber
+          else
+            echo "Creating new release..."
+            gh release create android-latest UP-Studio.apk \
+              --title "UP Studio — Android (latest)" \
+              --notes "Latest Android APK built automatically by GitHub Actions."
+          fi
