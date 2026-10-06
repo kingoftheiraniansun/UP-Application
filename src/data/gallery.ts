@@ -13,10 +13,10 @@ export const CATEGORIES: { id: Category; label: string }[] = [
 export interface GalleryItem {
   id: string;
   index: number;
-  driveId: string;
-  src: string; // full-size (w2000)
-  thumb: string; // grid thumbnail (w800)
-  fallback: string; // alternate CDN endpoint
+  fileName: string;
+  src: string;
+  thumb: string;
+  fallback: string;
   category: Exclude<Category, "all">;
   title: string;
   alt: string;
@@ -25,10 +25,13 @@ export interface GalleryItem {
 const pad = (n: number) => String(n).padStart(2, "0");
 
 /**
- * Category metadata for the 17 Drive gallery files (in Drive order).
- * Adjust `category` values here if the studio wants a different grouping — the UI reads only from this list.
- */
-const META: { category: GalleryItem["category"]; title: string }[] = [
+* Category metadata for the 17 UP Studio gallery files.
+* The order matches the gallery filenames in assets.ts.
+*/
+const META: {
+  category: GalleryItem["category"];
+  title: string;
+}[] = [
   { category: "fashion", title: "ادیتوریال ۰۱" },
   { category: "portrait", title: "پرتره ۰۱" },
   { category: "fashion", title: "ادیتوریال ۰۲" },
@@ -48,18 +51,25 @@ const META: { category: GalleryItem["category"]; title: string }[] = [
   { category: "art", title: "هنری ۰۴" },
 ];
 
-export const GALLERY: GalleryItem[] = DRIVE.gallery.map((driveId, i) => {
+export const GALLERY: GalleryItem[] = DRIVE.gallery.map((fileName, i) => {
   const n = i + 1;
-  const m = META[i] ?? { category: "portrait" as const, title: `اثر ${pad(n)}` };
+
+  const m = META[i] ?? {
+    category: "portrait" as const,
+    title: `اثر ${pad(n)}`,
+  };
+
   return {
     id: `p${pad(n)}`,
     index: n,
-    driveId,
-    src: driveImage(driveId, 2000),
-    thumb: driveImage(driveId, 800),
-    fallback: driveThumb(driveId, 1600),
+    fileName,
+    src: driveImage(fileName, 2000),
+    thumb: driveImage(fileName, 800),
+    fallback: driveThumb(fileName, 1600),
     category: m.category,
     title: m.title,
-    alt: `${m.title} — ${CATEGORIES.find((c) => c.id === m.category)?.label} — آپ استودیو`,
+    alt: `${m.title} — ${
+      CATEGORIES.find((c) => c.id === m.category)?.label
+    } — آپ استودیو`,
   };
 });
