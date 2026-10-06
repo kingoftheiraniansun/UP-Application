@@ -1,137 +1,233 @@
 name: Build Android APK
 
 on:
-workflow_dispatch:
-push:
-branches:
-- main
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
 
 permissions:
-contents: write
+  contents: write
+
+concurrency:
+  group: android-build
+  cancel-in-progress: true
 
 jobs:
-build-android:
-name: Build UP Studio APK
-runs-on: ubuntu-24.04
+  android:
+    name: UP Studio · Android
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
 
-steps:
-  - name: Checkout repository
-    uses: actions/checkout@v4
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-  - name: Setup Node.js
-    uses: actions/setup-node@v4
-    with:
-      node-version: 22
-      cache: npm
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
 
-  - name: Setup Java
-    uses: actions/setup-java@v5
-    with:
-      distribution: temurin
-      java-version: '21'
+      - name: Setup Java 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
 
-  - name: Show environment
-    run: |
-      echo "Node:"
-      node --version
-      echo "NPM:"
-      npm --version
-      echo "Java:"
-      java -version
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: "platform-tools platforms;android-35 build-tools;35.0.0"
 
-  - name: Install dependencies
-    run: npm install
+      - name: Show environment
+        run: |
+          echo "Node:"
+          node --version
 
-  - name: Build web application
-    run: npm run build
+          echo "NPM:"
+          npm --version
 
-  - name: Create Android project if needed
-    run: |
-      if [ ! -d "android" ]; then
-        echo "Android project not found."
-        echo "Creating Android project with Capacitor..."
-        npx cap add android
-      else
-        echo "Android project already exists."
-      fi
+          echo "Java:"
+          java -version
 
-        - name: Prepare Android app icon
-          run: |
-            mkdir -p assets
-            cp public/icons/icon-512.png assets/icon-only.png
+      - name: Install dependencies
+        run: npm ci || npm install
 
-        - name: Install Capacitor Assets
-          run: npm install --no-save @capacitor/assets
+      - name: Build web app
+        run: npm run build
 
-        - name: Generate native Android icon resources
-          run: npx capacitor-assets generate --android
+      - name: Add Android platform
+        run: |
+          if [ ! -d "android" ]; then
+            echo "Android project not found."
+            echo "Creating Android project..."
+            npx cap add android
+          else
+            echo "Android project already exists."
+          fi
 
-  - name: Sync Capacitor Android
-    run: npx cap sync android
+      - name: Prepare Android app icon
+        run: |
+          mkdir -p assets
 
-  - name: Make Gradle executable
-    run: chmod +x android/gradlew
+          if [ ! -f "public/icons/icon-512.png" ]; then
+            echo "ERROR: public/icons/icon-512.png was not found."
+            exit 1
+          fi
 
-  - name: Decode release keystore
-    env:
-      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-    run: |
-      echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/upstudio-release.jks"
-      test -s "$RUNNER_TEMP/upstudio-release.jks"
+          cp public/icons/icon-512.png assets/icon-only.png
 
-  - name: Build signed Android APK
-    env:
-      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-    run: |
-      npx cap build android \
-        --keystorepath "$RUNNER_TEMP/upstudio-release.jks" \
-        --keystorepass "$ANDROID_KEYSTORE_PASSWORD" \
-        --keystorealias "$ANDROID_KEY_ALIAS" \
-        --keystorealiaspass "$ANDROID_KEY_PASSWORD" \
-        --androidreleasetype APK \
-        --signing-type jarsigner
+          echo "Android icon prepared:"
+          file assets/icon-only.png
 
-  - name: Inspect Android build outputs
-    run: |
-      echo "APK files:"
-      find android -type f -name "*.apk" -print
+      - name: Install Capacitor Assets
+        run: npm install --no-save @capacitor/assets
 
-  - name: Prepare APK
-    run: |
-      APK=$(find android -type f -name "*.apk" | head -n 1)
+      - name: Generate native Android icon resources
+        run: npx capacitor-assets generate --android
 
-      if [ -z "$APK" ]; then
-        echo "ERROR: No APK file was found."
-        find android/app/build -type f -print 2>/dev/null || true
-        exit 1
-      fi
+      - name: Sync Capacitor
+        run: npx cap sync android
 
-      echo "Found APK: $APK"
-      cp "$APK" UP-Studio.apk
+      - name: Make Gradle executable
+        run: chmod +x android/gradlew
 
-      echo "Final APK:"
-      ls -lh UP-Studio.apk
+      - name: Prepare release keystore
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -z "$ANDROID_KEYSTORE_BASE64" ]; then
+            echo "ERROR: ANDROID_KEYSTORE_BASE64 secret is missing."
+            exit 1
+          fi
 
-  - name: Create or update GitHub Release
-    env:
-      GH_TOKEN: ${{ github.token }}
-    run: |
-      if gh release view android-latest >/dev/null 2>&1; then
-        echo "Existing release found."
-        echo "Uploading new APK..."
+          if [ -z "$ANDROID_KEYSTORE_PASSWORD" ]; then
+            echo "ERROR: ANDROID_KEYSTORE_PASSWORD secret is missing."
+            exit 1
+          fi
 
-        gh release upload \
-          android-latest \
-          UP-Studio.apk \
-          --clobber
-      else
-        echo "Creating new release..."
+          if [ -z "$ANDROID_KEY_ALIAS" ]; then
+            echo "ERROR: ANDROID_KEY_ALIAS secret is missing."
+            exit 1
+          fi
 
-        gh release create \
-          android-latest \
-          UP-Studio.apk \
-          --title "UP Studio — Android (latest)" \
-          --notes "Latest Android APK built automatically by GitHub Actions."
-      fi
+          if [ -z "$ANDROID_KEY_PASSWORD" ]; then
+            echo "ERROR: ANDROID_KEY_PASSWORD secret is missing."
+            exit 1
+          fi
+
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/upstudio-release.jks"
+
+          if [ ! -s "$RUNNER_TEMP/upstudio-release.jks" ]; then
+            echo "ERROR: Keystore file is empty."
+            exit 1
+          fi
+
+          echo "Release keystore prepared successfully."
+
+      - name: Build release APK
+        working-directory: android
+        run: |
+          ./gradlew assembleRelease --no-daemon --stacktrace
+
+      - name: Align and sign APK
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          BT="$ANDROID_HOME/build-tools/35.0.0"
+
+          UNSIGNED=$(find android/app/build/outputs/apk/release \
+            -type f \
+            -name "*-unsigned.apk" \
+            | head -n 1)
+
+          if [ -z "$UNSIGNED" ]; then
+            echo "ERROR: Unsigned APK was not found."
+
+            echo "Available APK/build files:"
+            find android/app/build/outputs -type f -print 2>/dev/null || true
+
+            exit 1
+          fi
+
+          echo "Unsigned APK:"
+          echo "$UNSIGNED"
+
+          "$BT/zipalign" \
+            -p \
+            -f \
+            4 \
+            "$UNSIGNED" \
+            aligned.apk
+
+          "$BT/apksigner" sign \
+            --ks "$RUNNER_TEMP/upstudio-release.jks" \
+            --ks-key-alias "$ANDROID_KEY_ALIAS" \
+            --ks-pass "pass:$ANDROID_KEYSTORE_PASSWORD" \
+            --key-pass "pass:$ANDROID_KEY_PASSWORD" \
+            --out UP-Studio.apk \
+            aligned.apk
+
+          "$BT/apksigner" verify \
+            --verbose \
+            --print-certs \
+            UP-Studio.apk
+
+          cp UP-Studio.apk "UP-Studio-build${{ github.run_number }}.apk"
+
+          echo "Final APK files:"
+          ls -lh UP-Studio*.apk
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: UP-Studio-APK
+          path: |
+            UP-Studio.apk
+            UP-Studio-build${{ github.run_number }}.apk
+          retention-days: 90
+
+      - name: Publish to GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view android-latest >/dev/null 2>&1; then
+            echo "Existing release found."
+            echo "Uploading new APK files..."
+
+            gh release upload \
+              android-latest \
+              UP-Studio.apk \
+              "UP-Studio-build${{ github.run_number }}.apk" \
+              --clobber
+          else
+            echo "Creating new release..."
+
+            gh release create \
+              android-latest \
+              UP-Studio.apk \
+              "UP-Studio-build${{ github.run_number }}.apk" \
+              --title "UP Studio — Android (latest)" \
+              --notes "📱 UP Studio / آپ استودیو — نسخهٔ اندروید
+
+- شناسه: com.upstudio.app
+- بیلد: #${{ github.run_number }}
+- کامیت: ${{ github.sha }}
+
+نصب:
+فایل UP-Studio.apk را دانلود کنید، روی گوشی باز کنید و در صورت نیاز اجازه نصب از منابع ناشناس را برای مرورگر یا فایل‌منیجر فعال کنید."
+
+          fi
+
+      - name: Cleanup sensitive keystore
+        if: always()
+        run: |
+          rm -f "$RUNNER_TEMP/upstudio-release.jks"
+          rm -f release.keystore
