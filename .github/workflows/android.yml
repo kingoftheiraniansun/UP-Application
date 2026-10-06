@@ -67,15 +67,18 @@ jobs:
           fi
 
       - name: Prepare Android app icon
-        run: |
-          mkdir -p assets
+  run: |
+    mkdir -p assets
 
-          if [ ! -f "public/icons/icon-512.png" ]; then
-            echo "ERROR: public/icons/icon-512.png was not found."
-            exit 1
-          fi
+    if [ ! -f "public/media/logo/upstudio-logo.png" ]; then
+      echo "ERROR: public/media/logo/upstudio-logo.png was not found."
+      exit 1
+    fi
 
-          cp public/icons/icon-512.png assets/icon-only.png
+    cp public/media/logo/upstudio-logo.png assets/icon-only.png
+
+    echo "Android icon prepared from UP Studio logo."
+    file assets/icon-only.png
 
           echo "Android icon prepared."
           file assets/icon-only.png
