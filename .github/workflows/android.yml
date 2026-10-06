@@ -25,10 +25,19 @@ jobs:
           cache: npm
 
       - name: Setup Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '21'
+
+      - name: Show environment
+        run: |
+          echo "Node:"
+          node --version
+          echo "NPM:"
+          npm --version
+          echo "Java:"
+          java -version
 
       - name: Install dependencies
         run: npm install
@@ -39,7 +48,8 @@ jobs:
       - name: Create Android project if needed
         run: |
           if [ ! -d "android" ]; then
-            echo "Android project not found. Creating it with Capacitor..."
+            echo "Android project not found."
+            echo "Creating Android project with Capacitor..."
             npx cap add android
           else
             echo "Android project already exists."
@@ -55,14 +65,42 @@ jobs:
         working-directory: android
         run: ./gradlew assembleRelease --stacktrace
 
-      - name: Find generated APK
+      - name: Inspect Android build outputs
         run: |
-          echo "Searching for generated APK..."
-          find android/app/build/outputs/apk -type f -name "*.apk" -print
+          echo "======================================"
+          echo "APK files:"
+          echo "======================================"
+
+          find android -type f -name "*.apk" -print
+
+          echo ""
+          echo "======================================"
+          echo "Build output directories:"
+          echo "======================================"
+
+          find android/app/build/outputs -maxdepth 5 -type f -print 2>/dev/null || true
 
       - name: Prepare APK
         run: |
-          cp android/app/build/outputs/apk/release/app-release.apk UP-Studio.apk
+          echo "Searching for generated APK..."
+
+          APK=$(find android -type f -name "*.apk" | head -n 1)
+
+          if [ -z "$APK" ]; then
+            echo "ERROR: No APK file was found."
+            echo ""
+            echo "Full build directory:"
+            find android/app/build -type f -print 2>/dev/null || true
+            exit 1
+          fi
+
+          echo "Found APK:"
+          echo "$APK"
+
+          cp "$APK" UP-Studio.apk
+
+          echo ""
+          echo "Final APK:"
           ls -lh UP-Studio.apk
 
       - name: Create or update GitHub Release
@@ -70,11 +108,20 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           if gh release view android-latest >/dev/null 2>&1; then
-            echo "Updating existing release..."
-            gh release upload android-latest UP-Studio.apk --clobber
+            echo "Existing release found."
+            echo "Uploading new APK..."
+
+            gh release upload \
+              android-latest \
+              UP-Studio.apk \
+              --clobber
+
           else
             echo "Creating new release..."
-            gh release create android-latest UP-Studio.apk \
+
+            gh release create \
+              android-latest \
+              UP-Studio.apk \
               --title "UP Studio — Android (latest)" \
               --notes "Latest Android APK built automatically by GitHub Actions."
           fi
