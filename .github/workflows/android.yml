@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   android:
-    name: UP Studio · Android
+    name: UP Studio - Android
     runs-on: ubuntu-24.04
     timeout-minutes: 40
 
@@ -45,10 +45,8 @@ jobs:
         run: |
           echo "Node:"
           node --version
-
           echo "NPM:"
           npm --version
-
           echo "Java:"
           java -version
 
@@ -79,7 +77,7 @@ jobs:
 
           cp public/icons/icon-512.png assets/icon-only.png
 
-          echo "Android icon prepared:"
+          echo "Android icon prepared."
           file assets/icon-only.png
 
       - name: Install Capacitor Assets
@@ -214,16 +212,8 @@ jobs:
               android-latest \
               UP-Studio.apk \
               "UP-Studio-build${{ github.run_number }}.apk" \
-              --title "UP Studio — Android (latest)" \
-              --notes "📱 UP Studio / آپ استودیو — نسخهٔ اندروید
-
-- شناسه: com.upstudio.app
-- بیلد: #${{ github.run_number }}
-- کامیت: ${{ github.sha }}
-
-نصب:
-فایل UP-Studio.apk را دانلود کنید، روی گوشی باز کنید و در صورت نیاز اجازه نصب از منابع ناشناس را برای مرورگر یا فایل‌منیجر فعال کنید."
-
+              --title "UP Studio - Android (latest)" \
+              --notes "Latest UP Studio Android APK. Build #${{ github.run_number }}."
           fi
 
       - name: Cleanup sensitive keystore
