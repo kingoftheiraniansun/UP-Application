@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { ArrowUpLeft, CalendarDays, Globe, Images, Instagram, MessageCircle, Phone } from "lucide-react";
+import { ArrowUpLeft, CalendarDays, Globe, Images, MessageCircle, Phone } from "lucide-react";
+import { InstagramIcon as Instagram } from "../components/BrandIcons";
 import { BRAND, SERVICES } from "../data/brand";
 import { GALLERY } from "../data/gallery";
 import { ASSETS } from "../data/assets";
