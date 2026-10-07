@@ -4,8 +4,8 @@ import { InstagramIcon, TelegramIcon, WhatsAppIcon } from "../components/BrandIc
 import { BRAND, MAPS_LINK, OSM_EMBED, toFa } from "../data/brand";
 
 const CHANNELS = [
-  { label: "تلفن", value: BRAND.phoneDisplay, href: \`tel:\${BRAND.phoneIntl}\`, Icon: Phone, external: false, ltr: false },
-  { label: "ایمیل", value: BRAND.email, href: \`mailto:\${BRAND.email}\`, Icon: Mail, external: false, ltr: true },
+  { label: "تلفن", value: BRAND.phoneDisplay, href: `tel:${BRAND.phoneIntl}`, Icon: Phone, external: false, ltr: false },
+  { label: "ایمیل", value: BRAND.email, href: `mailto:${BRAND.email}`, Icon: Mail, external: false, ltr: true },
   { label: "واتس‌اپ", value: "wa.link/pcjlml", href: BRAND.whatsapp, Icon: WhatsAppIcon, external: true, ltr: true },
   { label: "تلگرام", value: "@uplabstudio", href: BRAND.telegram, Icon: TelegramIcon, external: true, ltr: true },
   { label: "اینستاگرام", value: "@uplabstudio", href: BRAND.instagram, Icon: InstagramIcon, external: true, ltr: true },

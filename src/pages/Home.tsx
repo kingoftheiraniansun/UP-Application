@@ -56,7 +56,7 @@ export default function Home() {
           {featured.map((item) => (
             <Link
               key={item.id}
-              to={\`/gallery?img=\${item.id}\`}
+              to={`/gallery?img=${item.id}`}
               className="group w-32 shrink-0 overflow-hidden rounded-2xl bg-paper-2 sm:w-36"
             >
               <SmartImage
@@ -79,7 +79,7 @@ export default function Home() {
           {SERVICES.map((service) => (
             <Link
               key={service.id}
-              to={\`/gallery?cat=\${service.id}\`}
+              to={`/gallery?cat=${service.id}`}
               className="group rounded-2xl border border-line bg-white p-4 transition hover:-translate-y-0.5 hover:border-gold active:scale-[0.98]"
             >
               <h3 className="font-bold">{service.title}</h3>
@@ -89,7 +89,7 @@ export default function Home() {
           ))}
         </div>
         <div className="mt-4 grid grid-cols-3 gap-2">
-          <a href={\`tel:\${BRAND.phoneIntl}\`} className="focus-ring inline-flex items-center justify-center gap-1 rounded-full bg-paper-2 py-2.5 text-xs font-medium"><Phone className="h-3.5 w-3.5" /> تماس</a>
+          <a href={`tel:${BRAND.phoneIntl}`} className="focus-ring inline-flex items-center justify-center gap-1 rounded-full bg-paper-2 py-2.5 text-xs font-medium"><Phone className="h-3.5 w-3.5" /> تماس</a>
           <a href={BRAND.whatsapp} target="_blank" rel="noopener noreferrer" className="focus-ring inline-flex items-center justify-center gap-1 rounded-full bg-paper-2 py-2.5 text-xs font-medium"><MessageCircle className="h-3.5 w-3.5" /> واتساپ</a>
           <a href={BRAND.instagram} target="_blank" rel="noopener noreferrer" className="focus-ring inline-flex items-center justify-center gap-1 rounded-full bg-paper-2 py-2.5 text-xs font-medium"><Instagram className="h-3.5 w-3.5" /> اینستاگرام</a>
         </div>

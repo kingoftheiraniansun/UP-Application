@@ -157,7 +157,7 @@ export default function Gallery() {
                 key={g.id}
                 onClick={() => openAt(i)}
                 className="focus-ring group relative mb-3 block w-full overflow-hidden rounded-2xl bg-paper-2 text-right md:mb-4"
-                aria-label={\`نمایش تمام‌صفحه \${g.title}\`}
+                aria-label={`نمایش تمام‌صفحه ${g.title}`}
               >
                 <SmartImage
                   src={g.thumb}

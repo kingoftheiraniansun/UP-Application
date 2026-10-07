@@ -82,8 +82,8 @@ export default function Shell() {
           <div>
             <h4 className="mb-3 text-xs font-bold text-muted">تماس</h4>
             <ul className="space-y-2 text-sm">
-              <li><a className="hover:text-gold" href={\`tel:\${BRAND.phoneIntl}\`}>{BRAND.phoneDisplay}</a></li>
-              <li><a className="hover:text-gold" href={\`mailto:\${BRAND.email}\`} dir="ltr">{BRAND.email}</a></li>
+              <li><a className="hover:text-gold" href={`tel:${BRAND.phoneIntl}`}>{BRAND.phoneDisplay}</a></li>
+              <li><a className="hover:text-gold" href={`mailto:${BRAND.email}`} dir="ltr">{BRAND.email}</a></li>
               <li><a className="hover:text-gold" href={BRAND.instagram} target="_blank" rel="noopener noreferrer" dir="ltr">{BRAND.instagramHandle}</a></li>
             </ul>
           </div>

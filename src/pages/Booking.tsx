@@ -51,19 +51,19 @@ export default function Booking() {
       : "—";
     return [
       "سلام، درخواست رزرو آپ استودیو:",
-      \`👤 نام: \${form.name.trim()}\`,
-      \`📱 شماره: \${toFa(toEn(form.phone))}\`,
-      \`📅 تاریخ: \${dateFa}\`,
-      \`⏰ ساعت: \${form.time || "—"}\`,
-      \`⏳ مدت: \${form.duration || "—"}\`,
-      \`📷 خدمات: \${service}\`,
-      \`💡 تجهیزات: \${form.equipment.length ? form.equipment.join("، ") : "—"}\`,
-      form.notes.trim() ? \`📝 توضیحات: \${form.notes.trim()}\` : null,
+      `👤 نام: ${form.name.trim()}`,
+      `📱 شماره: ${toFa(toEn(form.phone))}`,
+      `📅 تاریخ: ${dateFa}`,
+      `⏰ ساعت: ${form.time || "—"}`,
+      `⏳ مدت: ${form.duration || "—"}`,
+      `📷 خدمات: ${service}`,
+      `💡 تجهیزات: ${form.equipment.length ? form.equipment.join("، ") : "—"}`,
+      form.notes.trim() ? `📝 توضیحات: ${form.notes.trim()}` : null,
     ].filter(Boolean).join("\n");
   }, [form]);
 
-  const waUrl = \`https://wa.me/\${BRAND.phoneIntl.replace("+", "")}?text=\${encodeURIComponent(message)}\`;
-  const tgUrl = \`\${BRAND.telegram}?text=\${encodeURIComponent(message)}\`;
+  const waUrl = `https://wa.me/${BRAND.phoneIntl.replace("+", "")}?text=${encodeURIComponent(message)}`;
+  const tgUrl = `${BRAND.telegram}?text=${encodeURIComponent(message)}`;
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
