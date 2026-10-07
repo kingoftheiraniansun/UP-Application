@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
-import { Home, Images, CalendarCheck, MessageCircle, Phone, Sparkles } from "lucide-react";
+import { Home, Images, CalendarDays, Sparkles, Phone } from "lucide-react";
 import Logo from "./Logo";
 import { BRAND } from "../data/brand";
 import { cn } from "../utils/cn";
@@ -8,8 +8,8 @@ import { cn } from "../utils/cn";
 const NAV = [
   { to: "/", label: "خانه", icon: Home, end: true },
   { to: "/gallery", label: "گالری", icon: Images },
-  { to: "/booking", label: "رزرو", icon: CalendarCheck },
-  { to: "/assistant", label: "دستیار", icon: MessageCircle },
+  { to: "/booking", label: "رزرو", icon: CalendarDays },
+  { to: "/assistant", label: "دستیار", icon: Sparkles },
   { to: "/contact", label: "تماس", icon: Phone },
 ];
 
@@ -22,11 +22,7 @@ export default function Shell() {
 
   return (
     <div className="flex min-h-screen flex-col bg-paper text-ink">
-      {/* Desktop / tablet header */}
-      <header
-        className="sticky top-0 z-40 border-b border-line/70 bg-paper/85 backdrop-blur-md"
-        style={{ paddingTop: "var(--sat)" }}
-      >
+      <header className="sticky top-0 z-40 border-b border-line/60 bg-paper/85 backdrop-blur-xl" style={{ paddingTop: "var(--sat)" }}>
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:px-8">
           <Logo />
           <nav className="hidden items-center gap-1 md:flex" aria-label="ناوبری اصلی">
@@ -35,59 +31,41 @@ export default function Shell() {
                 key={n.to}
                 to={n.to}
                 end={n.end}
-                className={({ isActive }) =>
-                  cn(
-                    "focus-ring relative rounded-full px-4 py-2 text-sm transition-colors",
-                    isActive ? "font-bold text-ink" : "text-muted hover:text-ink",
-                  )
-                }
-              >
-                {({ isActive }) => (
-                  <>
-                    {n.label}
-                    <span
-                      className={cn(
-                        "absolute bottom-0.5 right-1/2 h-[2px] translate-x-1/2 rounded-full bg-gold transition-all duration-300",
-                        isActive ? "w-5" : "w-0",
-                      )}
-                    />
-                  </>
+                className={({ isActive }) => cn(
+                  "focus-ring rounded-full px-4 py-2 text-sm transition",
+                  isActive ? "bg-ink text-paper" : "text-muted hover:text-ink hover:bg-paper-2",
                 )}
+              >
+                {n.label}
               </NavLink>
             ))}
             <NavLink
               to="/planner"
-              className={({ isActive }) =>
-                cn(
-                  "focus-ring mr-2 flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm transition-colors",
-                  isActive ? "border-ink bg-ink text-paper" : "border-line text-ink-2 hover:border-ink",
-                )
-              }
+              className={({ isActive }) => cn(
+                "focus-ring mr-2 flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm transition",
+                isActive ? "border-ink bg-ink text-paper" : "border-line text-ink-2 hover:border-ink",
+              )}
             >
-              <Sparkles className="h-4 w-4" />
-              برنامه‌ریز
+              <Sparkles className="h-4 w-4" /> برنامه‌ریز
             </NavLink>
           </nav>
-          <a
-            href={BRAND.whatsapp}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="focus-ring hidden rounded-full bg-ink px-4 py-2 text-sm font-semibold text-paper transition hover:bg-ink-2 md:block"
-          >
-            رزرو سریع
-          </a>
-          <NavLink
-            to="/planner"
-            className={({ isActive }) =>
-              cn(
-                "focus-ring flex h-10 w-10 items-center justify-center rounded-full border md:hidden",
-                isActive ? "border-ink bg-ink text-paper" : "border-line text-ink-2",
-              )
-            }
-            aria-label="برنامه‌ریز عکاسی"
-          >
-            <Sparkles className="h-4.5 w-4.5" />
-          </NavLink>
+          <div className="flex items-center gap-2">
+            <a
+              href={BRAND.whatsapp}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="focus-ring hidden rounded-full bg-ink px-4 py-2 text-sm font-semibold text-paper transition hover:bg-ink-2 md:block"
+            >
+              رزرو سریع
+            </a>
+            <NavLink
+              to="/planner"
+              className="focus-ring flex h-10 w-10 items-center justify-center rounded-full border border-line md:hidden"
+              aria-label="برنامه‌ریز عکاسی"
+            >
+              <Sparkles className="h-4 w-4" />
+            </NavLink>
+          </div>
         </div>
       </header>
 
@@ -95,7 +73,6 @@ export default function Shell() {
         <Outlet />
       </main>
 
-      {/* Footer (desktop) */}
       <footer className="hidden border-t border-line bg-paper-2/60 md:block">
         <div className="mx-auto grid max-w-7xl gap-8 px-8 py-12 md:grid-cols-3">
           <div>
@@ -105,8 +82,8 @@ export default function Shell() {
           <div>
             <h4 className="mb-3 text-xs font-bold text-muted">تماس</h4>
             <ul className="space-y-2 text-sm">
-              <li><a className="hover:text-gold" href={`tel:${BRAND.phoneIntl}`}>{BRAND.phoneDisplay}</a></li>
-              <li><a className="hover:text-gold" href={`mailto:${BRAND.email}`} dir="ltr">{BRAND.email}</a></li>
+              <li><a className="hover:text-gold" href={\`tel:\${BRAND.phoneIntl}\`}>{BRAND.phoneDisplay}</a></li>
+              <li><a className="hover:text-gold" href={\`mailto:\${BRAND.email}\`} dir="ltr">{BRAND.email}</a></li>
               <li><a className="hover:text-gold" href={BRAND.instagram} target="_blank" rel="noopener noreferrer" dir="ltr">{BRAND.instagramHandle}</a></li>
             </ul>
           </div>
@@ -120,40 +97,30 @@ export default function Shell() {
         </div>
       </footer>
 
-      {/* Mobile bottom nav */}
-      <nav
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-paper/92 backdrop-blur-md md:hidden"
-        style={{ paddingBottom: "max(var(--sab), 8px)" }}
-        aria-label="ناوبری موبایل"
-      >
-        <ul className="grid grid-cols-5">
+      <nav className="fixed inset-x-0 bottom-0 z-40 pb-2 md:hidden" aria-label="منوی اصلی">
+        <div className="mx-3 flex max-w-md items-center justify-between gap-1 rounded-full border border-line/70 bg-white/85 px-2 py-1.5 shadow-[0_10px_40px_-12px_rgba(0,0,0,0.25)] backdrop-blur-xl sm:mx-auto">
           {NAV.map((n) => {
             const Icon = n.icon;
             return (
-              <li key={n.to}>
-                <NavLink
-                  to={n.to}
-                  end={n.end}
-                  className={({ isActive }) =>
-                    cn(
-                      "focus-ring flex min-h-[56px] flex-col items-center justify-center gap-1 pt-2 text-[11px] transition-colors",
-                      isActive ? "font-bold text-ink" : "text-muted",
-                    )
-                  }
-                >
-                  {({ isActive }) => (
-                    <>
-                      <span className={cn("rounded-full px-3 py-0.5 transition-colors", isActive && "bg-ink/5")}>
-                        <Icon className="h-5 w-5" strokeWidth={isActive ? 2.2 : 1.7} />
-                      </span>
-                      {n.label}
-                    </>
-                  )}
-                </NavLink>
-              </li>
+              <NavLink
+                key={n.to}
+                to={n.to}
+                end={n.end}
+                className={({ isActive }) => cn(
+                  "focus-ring flex flex-1 flex-col items-center gap-0.5 rounded-full py-1.5 text-[10.5px] transition-all duration-300",
+                  isActive ? "bg-ink text-paper" : "text-muted hover:text-ink",
+                )}
+              >
+                {({ isActive }) => (
+                  <>
+                    <Icon className={cn("h-[18px] w-[18px] transition-transform duration-300", isActive && "scale-110")} strokeWidth={1.7} />
+                    <span className="font-medium">{n.label}</span>
+                  </>
+                )}
+              </NavLink>
             );
           })}
-        </ul>
+        </div>
       </nav>
     </div>
   );

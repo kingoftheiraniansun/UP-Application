@@ -4,8 +4,8 @@ import { InstagramIcon, TelegramIcon, WhatsAppIcon } from "../components/BrandIc
 import { BRAND, MAPS_LINK, OSM_EMBED, toFa } from "../data/brand";
 
 const CHANNELS = [
-  { label: "تلفن", value: BRAND.phoneDisplay, href: `tel:${BRAND.phoneIntl}`, Icon: Phone, external: false, ltr: false },
-  { label: "ایمیل", value: BRAND.email, href: `mailto:${BRAND.email}`, Icon: Mail, external: false, ltr: true },
+  { label: "تلفن", value: BRAND.phoneDisplay, href: \`tel:\${BRAND.phoneIntl}\`, Icon: Phone, external: false, ltr: false },
+  { label: "ایمیل", value: BRAND.email, href: \`mailto:\${BRAND.email}\`, Icon: Mail, external: false, ltr: true },
   { label: "واتس‌اپ", value: "wa.link/pcjlml", href: BRAND.whatsapp, Icon: WhatsAppIcon, external: true, ltr: true },
   { label: "تلگرام", value: "@uplabstudio", href: BRAND.telegram, Icon: TelegramIcon, external: true, ltr: true },
   { label: "اینستاگرام", value: "@uplabstudio", href: BRAND.instagram, Icon: InstagramIcon, external: true, ltr: true },
@@ -27,78 +27,47 @@ export default function Contact() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-5 pb-16 pt-10 sm:px-8 md:pt-16">
-      <header className="mb-8 md:mb-12">
-        <p className="eyebrow mb-2">تماس</p>
-        <h1 className="font-display text-4xl font-extrabold md:text-5xl">در تماس باشیم</h1>
-        <p className="mt-3 max-w-xl text-sm leading-7 text-muted md:text-base">
-          برای رزرو، استعلام قیمت یا مشاورهٔ پروژه، از هر کانالی که راحت‌ترید پیام بدهید.
-        </p>
+    <div className="mx-auto max-w-7xl px-4 pb-16 pt-8 sm:px-6 md:pt-12">
+      <header className="mb-7 px-1">
+        <p className="eyebrow mb-2">Contact</p>
+        <h1 className="font-display text-4xl font-extrabold">با ما در ارتباط باشید</h1>
+        <p className="mt-3 max-w-xl text-sm leading-7 text-muted">برای رزرو، استعلام قیمت یا مشاورهٔ پروژه، از هر کانالی که راحت‌ترید پیام بدهید.</p>
       </header>
-
-      <div className="grid gap-10 lg:grid-cols-2">
-        <div>
-          <ul className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2">
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
             {CHANNELS.map(({ label, value, href, Icon, external, ltr }) => (
-              <li key={label}>
-                <a
-                  href={href}
-                  target={external ? "_blank" : undefined}
-                  rel={external ? "noopener noreferrer" : undefined}
-                  className="focus-ring flex items-center gap-4 rounded-xl border border-line bg-white p-4 transition hover:border-gold hover:shadow-sm"
-                >
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-paper text-gold">
-                    <Icon className="h-5 w-5" />
-                  </span>
-                  <span className="min-w-0">
-                    <span className="block text-xs text-muted">{label}</span>
-                    <span className="block truncate text-sm font-bold" dir={ltr ? "ltr" : undefined} style={ltr ? { textAlign: "right" } : undefined}>
-                      {value}
-                    </span>
-                  </span>
-                </a>
-              </li>
+              <a key={label} href={href} target={external ? "_blank" : undefined} rel={external ? "noopener noreferrer" : undefined} className="focus-ring flex items-center gap-3 rounded-3xl border border-line bg-white p-3 transition hover:border-gold active:scale-[0.99]">
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-paper-2 text-gold"><Icon className="h-5 w-5" /></span>
+                <span className="min-w-0">
+                  <span className="block text-[11px] text-muted">{label}</span>
+                  <span className="block truncate text-xs font-bold" dir={ltr ? "ltr" : undefined}>{value}</span>
+                </span>
+              </a>
             ))}
-          </ul>
-
-          <div className="mt-6 rounded-2xl border border-line bg-white p-5">
+          </div>
+          <div className="rounded-3xl border border-line bg-white p-4">
             <div className="flex items-start gap-3">
               <MapPin className="mt-1 h-5 w-5 shrink-0 text-gold" />
-              <div className="min-w-0 flex-1">
+              <div className="min-w-0">
                 <p className="text-xs text-muted">نشانی</p>
                 <p className="mt-1 text-sm leading-7">{BRAND.address}</p>
-                <p className="mt-2 text-xs text-muted" dir="ltr" style={{ textAlign: "right" }}>
-                  {toFa(BRAND.coords.lat)}, {toFa(BRAND.coords.lng)}
-                </p>
+                <p className="mt-2 text-[11px] text-muted" dir="ltr">{toFa(BRAND.coords.lat)}, {toFa(BRAND.coords.lng)}</p>
               </div>
             </div>
-            <div className="mt-4 flex flex-wrap gap-2">
-              <a href={MAPS_LINK} target="_blank" rel="noopener noreferrer" className="focus-ring inline-flex items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-xs font-bold text-paper hover:bg-ink-2">
-                <Navigation className="h-3.5 w-3.5" /> مسیریابی
-              </a>
-              <button onClick={copyAddress} className="focus-ring inline-flex items-center gap-2 rounded-full border border-line bg-white px-5 py-2.5 text-xs font-semibold hover:border-ink">
-                {copied ? <Check className="h-3.5 w-3.5 text-gold" /> : <Copy className="h-3.5 w-3.5" />} {copied ? "کپی شد" : "کپی نشانی"}
-              </button>
+            <div className="mt-4 flex gap-2">
+              <a href={MAPS_LINK} target="_blank" rel="noopener noreferrer" className="focus-ring flex flex-1 items-center justify-center gap-2 rounded-full bg-ink py-3 text-xs font-bold text-paper"><Navigation className="h-4 w-4" /> مسیریابی</a>
+              <button onClick={copyAddress} className="focus-ring flex items-center gap-2 rounded-full border border-line px-4 text-xs">{copied ? <Check className="h-4 w-4 text-gold" /> : <Copy className="h-4 w-4" />} {copied ? "کپی شد" : "کپی آدرس"}</button>
             </div>
           </div>
         </div>
-
-        <div className="overflow-hidden rounded-2xl border border-line bg-paper-2">
+        <div className="overflow-hidden rounded-3xl border border-line bg-paper-2">
           {mapFailed ? (
-            <a href={MAPS_LINK} target="_blank" rel="noopener noreferrer" className="focus-ring flex h-full min-h-[360px] flex-col items-center justify-center gap-3 text-muted">
-              <MapPin className="h-8 w-8 text-gold" />
-              <span className="text-sm">نقشه بارگذاری نشد — باز کردن در Google Maps</span>
+            <a href={MAPS_LINK} target="_blank" rel="noopener noreferrer" className="focus-ring flex min-h-[360px] flex-col items-center justify-center gap-3 text-muted">
+              <MapPin className="h-8 w-8 text-gold" /><span className="text-sm">نقشه بارگذاری نشد — باز کردن در Google Maps</span>
             </a>
           ) : (
-            <iframe
-              title="موقعیت آپ استودیو روی نقشه"
-              src={OSM_EMBED}
-              className="h-[360px] w-full border-0 lg:h-full lg:min-h-[520px]"
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              onError={() => setMapFailed(true)}
-              style={{ filter: "saturate(0.6) contrast(1.05)" }}
-            />
+            <iframe title="موقعیت آپ استودیو روی نقشه" src={OSM_EMBED} className="h-[360px] w-full border-0 lg:h-full lg:min-h-[520px]" loading="lazy" referrerPolicy="no-referrer-when-downgrade" onError={() => setMapFailed(true)} />
           )}
         </div>
       </div>

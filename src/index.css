@@ -21,6 +21,7 @@
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -34,38 +35,28 @@ body {
   overflow-x: hidden;
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
-::selection {
-  background: var(--color-gold);
-  color: white;
-}
+::selection { background: var(--color-gold); color: white; }
 
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
+button, a { -webkit-tap-highlight-color: transparent; }
 
-.font-display {
-  letter-spacing: 0;
-  line-height: 1.25;
-  text-wrap: balance;
-}
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* Persian eyebrow label — no letter-spacing (keeps cursive joins intact), gold rule accent */
+.font-display { letter-spacing: 0; line-height: 1.25; text-wrap: balance; }
+
 .eyebrow {
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 700;
   color: var(--color-gold);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
 }
+
 .eyebrow::before {
   content: "";
   width: 1.5rem;
@@ -73,64 +64,23 @@ body {
   background: var(--color-gold);
 }
 
-.prose-fa p {
-  margin: 0 0 0.75rem;
-  line-height: 1.9;
-}
-.prose-fa h3 {
-  font-weight: 700;
-  margin: 1.25rem 0 0.5rem;
-  font-size: 1.05rem;
-}
-.prose-fa ul {
-  margin: 0 0 0.75rem;
-  padding-right: 1.25rem;
-  list-style: disc;
-}
-.prose-fa li {
-  margin-bottom: 0.3rem;
-  line-height: 1.8;
-}
-.prose-fa strong {
-  color: var(--color-ink);
-}
+.prose-fa p { margin: 0 0 0.75rem; line-height: 1.9; }
+.prose-fa h3 { font-weight: 700; margin: 1.25rem 0 0.5rem; font-size: 1.05rem; }
+.prose-fa ul { margin: 0 0 0.75rem; padding-right: 1.25rem; list-style: disc; }
+.prose-fa li { margin-bottom: 0.3rem; line-height: 1.8; }
+.prose-fa strong { color: var(--color-ink); }
 
 @keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(14px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-.fade-up {
-  animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-.fade-up-1 { animation-delay: 0.1s; }
-.fade-up-2 { animation-delay: 0.2s; }
-.fade-up-3 { animation-delay: 0.3s; }
-
-@keyframes kenburns {
-  from {
-    transform: scale(1.05);
-  }
-  to {
-    transform: scale(1.15);
-  }
-}
-.kenburns {
-  animation: kenburns 16s ease-out forwards;
-}
+.fade-up { animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
 @keyframes typing {
   0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
   40% { transform: translateY(-4px); opacity: 1; }
 }
-.dot {
-  animation: typing 1.2s infinite ease-in-out;
-}
+.dot { animation: typing 1.2s infinite ease-in-out; }
 .dot:nth-child(2) { animation-delay: 0.15s; }
 .dot:nth-child(3) { animation-delay: 0.3s; }
 
@@ -145,9 +95,7 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .fade-up, .kenburns, .dot, .skeleton {
-    animation: none !important;
-  }
+  .fade-up, .dot, .skeleton { animation: none !important; }
 }
 
 .focus-ring:focus-visible {
