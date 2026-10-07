@@ -66,6 +66,10 @@ jobs:
             echo "Android project already exists."
           fi
 
+      - name: Install image tools
+        run: |
+          python3 -m pip install --user Pillow
+
       - name: Prepare Android app icon
         run: |
           mkdir -p assets
@@ -76,9 +80,31 @@ jobs:
           fi
 
           cp public/media/logo/upstudio-logo.png assets/icon-only.png
+          cp public/media/logo/upstudio-logo.png assets/icon-foreground.png
 
-          echo "Android icon prepared from UP Studio logo."
-          file assets/icon-only.png
+          python3 - <<'PY'
+          from PIL import Image
+
+          src = Image.open("public/media/logo/upstudio-logo.png").convert("RGBA")
+
+          print("Source logo size:", src.size)
+
+          if src.width < 1024 or src.height < 1024:
+              raise SystemExit("ERROR: Logo must be at least 1024x1024.")
+
+          bg = Image.new(
+              "RGBA",
+              src.size,
+              (247, 246, 243, 255)
+          )
+
+          bg.save("assets/icon-background.png")
+
+          print("Android adaptive icon assets created.")
+          PY
+
+          echo "Generated icon files:"
+          ls -lh assets/icon-*.png
 
       - name: Install Capacitor Assets
         run: npm install --no-save @capacitor/assets
