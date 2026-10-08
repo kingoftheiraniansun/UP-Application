@@ -54,7 +54,10 @@ export default function Shell() {
 
   return (
     <div className="min-h-screen bg-paper text-ink">
-      <header className="sticky top-0 z-40 border-b border-line/70 bg-paper/90 backdrop-blur-xl">
+      <header
+        className="sticky top-0 z-40 border-b border-line/70 bg-paper/90 backdrop-blur-xl"
+        style={{ paddingTop: "var(--sat)" }}
+      >
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
           <Logo />
           <nav className="hidden items-center gap-1 md:flex">
