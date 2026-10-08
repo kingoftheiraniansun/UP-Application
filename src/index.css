@@ -102,3 +102,9 @@ button, a { -webkit-tap-highlight-color: transparent; }
   outline: 2px solid var(--color-gold);
   outline-offset: 2px;
 }
+
+
+/* Android navigation-bar safe area: never let the floating nav sit on system buttons. */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .android-bottom-safe { padding-bottom: calc(env(safe-area-inset-bottom) + 8px); }
+}

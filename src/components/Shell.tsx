@@ -1,6 +1,7 @@
 import { useEffect } from "react";
+import { App as CapacitorApp } from "@capacitor/app";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
-import { Home, Images, CalendarDays, Sparkles, Phone } from "lucide-react";
+import { Home, Images, CalendarDays, Sparkles, Phone, Power } from "lucide-react";
 import Logo from "./Logo";
 import { BRAND } from "../data/brand";
 import { cn } from "../utils/cn";
@@ -19,6 +20,23 @@ export default function Shell() {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
   }, [pathname]);
+
+  useEffect(() => {
+    let remove: (() => void) | undefined;
+    CapacitorApp.addListener("backButton", ({ canGoBack }) => {
+      if (canGoBack) window.history.back();
+      else void CapacitorApp.exitApp();
+    }).then((handle) => { remove = () => handle.remove(); });
+    return () => remove?.();
+  }, []);
+
+  const exitApp = async () => {
+    try {
+      await CapacitorApp.exitApp();
+    } catch {
+      if (window.confirm("از برنامه خارج شوید؟")) window.close();
+    }
+  };
 
   return (
     <div className="flex min-h-screen flex-col bg-paper text-ink">
@@ -50,6 +68,15 @@ export default function Shell() {
             </NavLink>
           </nav>
           <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={exitApp}
+              className="focus-ring flex h-10 w-10 items-center justify-center rounded-full border border-line text-muted transition hover:border-red-300 hover:text-red-600"
+              aria-label="خروج از برنامه"
+              title="خروج از برنامه"
+            >
+              <Power className="h-4 w-4" />
+            </button>
             <a
               href={BRAND.whatsapp}
               target="_blank"
@@ -69,7 +96,7 @@ export default function Shell() {
         </div>
       </header>
 
-      <main className="flex-1 pb-24 md:pb-0">
+      <main className="flex-1 pb-32 md:pb-0">
         <Outlet />
       </main>
 
@@ -97,7 +124,7 @@ export default function Shell() {
         </div>
       </footer>
 
-      <nav className="fixed inset-x-0 bottom-0 z-40 pb-2 md:hidden" aria-label="منوی اصلی">
+      <nav className="fixed inset-x-0 bottom-0 z-40 md:hidden" style={{ paddingBottom: "calc(var(--sab) + 8px)" }} aria-label="منوی اصلی">
         <div className="mx-3 flex max-w-md items-center justify-between gap-1 rounded-full border border-line/70 bg-white/85 px-2 py-1.5 shadow-[0_10px_40px_-12px_rgba(0,0,0,0.25)] backdrop-blur-xl sm:mx-auto">
           {NAV.map((n) => {
             const Icon = n.icon;

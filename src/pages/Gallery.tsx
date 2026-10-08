@@ -6,7 +6,6 @@ import { toFa } from "../data/brand";
 import { ASSETS } from "../data/assets";
 import SmartImage from "../components/SmartImage";
 import Lightbox from "../components/Lightbox";
-import { useGalleryAvailability } from "../hooks/useGalleryAvailability";
 import { cn } from "../utils/cn";
 
 function FeaturedReel() {
@@ -71,13 +70,7 @@ export default function Gallery() {
   const catParam = (params.get("cat") as Category | null) ?? "all";
   const cat: Category = CATEGORIES.some((c) => c.id === catParam) ? catParam : "all";
   const imgParam = params.get("img");
-  const availability = useGalleryAvailability();
-  const probed = Object.keys(availability).length === GALLERY.length;
-
-  const visible = useMemo(
-    () => GALLERY.filter((g) => availability[g.id] === true && (cat === "all" || g.category === cat)),
-    [cat, availability],
-  );
+  const visible = useMemo(() => GALLERY.filter((g) => cat === "all" || g.category === cat), [cat]);
 
   const [open, setOpen] = useState<number | null>(null);
 
@@ -121,7 +114,7 @@ export default function Gallery() {
 
       <div className="no-scrollbar sticky top-16 z-30 -mx-3 flex gap-2 overflow-x-auto border-b border-line bg-paper/90 px-3 py-3 backdrop-blur-xl sm:-mx-5 sm:px-5" role="tablist" aria-label="دسته‌بندی گالری">
         {CATEGORIES.map((c) => {
-          const count = GALLERY.filter((g) => availability[g.id] === true && (c.id === "all" || g.category === c.id)).length;
+          const count = GALLERY.filter((g) => c.id === "all" || g.category === c.id).length;
           return (
             <button
               key={c.id}
@@ -141,11 +134,11 @@ export default function Gallery() {
       </div>
 
       <div className="mt-4">
-        {!probed && visible.length === 0 ? (
+        {visible.length === 0 ? (
           <div className="columns-2 gap-3 md:columns-3 md:gap-4" aria-busy="true">
             {[260, 340, 220, 300, 280, 360].map((h, i) => <div key={i} className="skeleton mb-3 w-full rounded-2xl" style={{ height: h }} />)}
           </div>
-        ) : visible.length === 0 && probed ? (
+        ) : false ? (
           <div className="rounded-3xl border border-dashed border-line py-20 text-center text-muted">
             <p className="text-sm">در این دسته هنوز اثری منتشر نشده است.</p>
             <button onClick={() => setCat("all")} className="focus-ring mt-4 text-sm font-semibold text-gold">نمایش همه</button>
@@ -163,7 +156,8 @@ export default function Gallery() {
                   src={g.thumb}
                   fallbacks={[g.src, g.fallback]}
                   alt={g.alt}
-                  loading={i < 6 ? "eager" : "lazy"}
+                  loading={i < 4 ? "eager" : "lazy"}
+                  fetchPriority={i < 2 ? "high" : "auto"}
                   decoding="async"
                   className="w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
                   wrapperClassName="min-h-[120px]"

@@ -12,9 +12,9 @@ type Kind = (typeof SERVICES)[number]["id"];
 
 function detectKind(p: string): Kind {
   const q = p.toLowerCase();
-  if (/ورزش|بوکس|فیتنس|بدنساز|دونده|اسپرت|قدرت/.test(q)) return "sport";
-  if (/مد|فشن|لوک|کمپین|لباس|برند پوشاک|مانکن/.test(q)) return "fashion";
-  if (/استیل|محصول|عطر|مفهومی|کانسپت|هنری|آرت|سایه|نقاشی|انتزاعی/.test(q)) return "art";
+  if (/ورزش|بوکس|فیتنس|بدنساز|دونده|اسپرت|فوتبال|بسکتبال|رزمی|دوچرخه|حرکت ورزشی/.test(q)) return "sport";
+  if (/مد|فشن|لوک.?بوک|کمپین|لباس|پوشاک|مانکن|کالکشن|کتواک/.test(q)) return "fashion";
+  if (/استیل.?لایف|محصول|عطر|مفهومی|هنری|آرت|نقاشی|انتزاعی|چیدمان|طبیعت بی‌جان/.test(q)) return "art";
   return "portrait";
 }
 

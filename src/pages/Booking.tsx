@@ -1,6 +1,6 @@
 import { useMemo, useState, type FormEvent } from "react";
 import { useLocation } from "react-router-dom";
-import { Check, Copy, AlertCircle, RotateCcw } from "lucide-react";
+import { Check, Copy, AlertCircle, RotateCcw, Sparkles } from "lucide-react";
 import { WhatsAppIcon, TelegramIcon } from "../components/BrandIcons";
 import { BRAND, DURATIONS, EQUIPMENT, SERVICES, TIME_SLOTS, toEn, toFa } from "../data/brand";
 import { cn } from "../utils/cn";
