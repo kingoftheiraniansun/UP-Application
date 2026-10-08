@@ -23,50 +23,70 @@ export default function Shell() {
 
   useEffect(() => {
     let remove: (() => void) | undefined;
+
     CapacitorApp.addListener("backButton", ({ canGoBack }) => {
-      if (canGoBack) window.history.back();
-      else void CapacitorApp.exitApp();
-    }).then((handle) => { remove = () => handle.remove(); });
+      if (canGoBack) {
+        window.history.back();
+        return;
+      }
+
+      if (window.confirm("آیا می‌خواهید از برنامه خارج شوید؟")) {
+        void CapacitorApp.exitApp();
+      }
+    }).then((handle) => {
+      remove = () => handle.remove();
+    });
+
     return () => remove?.();
   }, []);
 
   const exitApp = async () => {
+    if (!window.confirm("آیا می‌خواهید از برنامه خارج شوید؟")) return;
+
     try {
       await CapacitorApp.exitApp();
     } catch {
-      if (window.confirm("از برنامه خارج شوید؟")) window.close();
+      try {
+        window.close();
+      } catch {}
     }
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-paper text-ink">
-      <header className="sticky top-0 z-40 border-b border-line/60 bg-paper/85 backdrop-blur-xl" style={{ paddingTop: "var(--sat)" }}>
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:px-8">
+    <div className="min-h-screen bg-paper text-ink">
+      <header className="sticky top-0 z-40 border-b border-line/70 bg-paper/90 backdrop-blur-xl">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
           <Logo />
-          <nav className="hidden items-center gap-1 md:flex" aria-label="ناوبری اصلی">
-            {NAV.map((n) => (
-              <NavLink
-                key={n.to}
-                to={n.to}
-                end={n.end}
-                className={({ isActive }) => cn(
-                  "focus-ring rounded-full px-4 py-2 text-sm transition",
-                  isActive ? "bg-ink text-paper" : "text-muted hover:text-ink hover:bg-paper-2",
-                )}
-              >
-                {n.label}
-              </NavLink>
-            ))}
+          <nav className="hidden items-center gap-1 md:flex">
+            {NAV.map((n) => {
+              const Icon = n.icon;
+              return (
+                <NavLink
+                  key={n.to}
+                  to={n.to}
+                  end={n.end}
+                  className={({ isActive }) => cn(
+                    "focus-ring flex items-center gap-2 rounded-full px-3 py-2 text-xs font-medium transition",
+                    isActive ? "bg-ink text-paper" : "text-muted hover:bg-paper-2 hover:text-ink",
+                  )}
+                >
+                  <Icon className="h-4 w-4" />
+                  {n.label}
+                </NavLink>
+              );
+            })}
             <NavLink
               to="/planner"
               className={({ isActive }) => cn(
-                "focus-ring mr-2 flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm transition",
-                isActive ? "border-ink bg-ink text-paper" : "border-line text-ink-2 hover:border-ink",
+                "focus-ring flex items-center gap-2 rounded-full px-3 py-2 text-xs font-medium transition",
+                isActive ? "bg-gold text-ink" : "text-muted hover:bg-paper-2 hover:text-ink",
               )}
             >
-              <Sparkles className="h-4 w-4" /> برنامه‌ریز
+              <Sparkles className="h-4 w-4" />
+              برنامه‌ریز
             </NavLink>
           </nav>
+
           <div className="flex items-center gap-2">
             <button
               type="button"
