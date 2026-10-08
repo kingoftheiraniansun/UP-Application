@@ -2,7 +2,6 @@ import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 
 import { Link } from "react-router-dom";
 import { Send, ExternalLink, Trash2, Sparkles } from "lucide-react";
 import { localAssistant, SUGGESTIONS, type Reply } from "../lib/assistant";
-import { LogoMark } from "../components/Logo";
 import { cn } from "../utils/cn";
 
 interface Msg {
@@ -129,6 +128,13 @@ export default function Assistant() {
           <button type="submit" disabled={!input.trim() || typing} className="focus-ring flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-ink text-paper disabled:opacity-40" aria-label="ارسال"><Send className="h-4 w-4 -scale-x-100" /></button>
         </form>
       </div>
+
+      <section className="mt-5 rounded-3xl bg-ink p-6 text-paper sm:p-8">
+        <p className="text-xs text-paper/55">آپ استودیو</p>
+        <h2 className="mt-2 text-2xl font-extrabold">برای قاب بعدی آماده‌ای؟</h2>
+        <p className="mt-2 max-w-lg text-sm leading-7 text-paper/70">کانسپت پروژه را بفرستید یا مستقیم برای رزرو زمان اقدام کنید.</p>
+        <Link to="/planner" className="mt-5 inline-flex rounded-full bg-paper px-5 py-2.5 text-sm font-bold text-ink">شروع برنامه‌ریزی</Link>
+      </section>
     </div>
   );
 }
