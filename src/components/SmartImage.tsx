@@ -59,7 +59,7 @@ export default function SmartImage({ src, fallbacks, fallbackSrc, onFinalError, 
         referrerPolicy="no-referrer"
         onLoad={() => setLoaded(true)}
         onError={handleError}
-        className={cn("transition-opacity duration-700", loaded ? "opacity-100" : "opacity-0", className)}
+        className={cn("block h-auto w-full transition-opacity duration-300", loaded ? "opacity-100" : "opacity-0", className)}
       />
     </div>
   );
