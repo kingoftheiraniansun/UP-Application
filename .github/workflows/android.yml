@@ -70,7 +70,7 @@ jobs:
               im.thumbnail((640, 960), Image.Resampling.LANCZOS)
               out = out_dir / (src.stem + ".webp")
               im.save(out, "WEBP", quality=78, method=6)
-          print("Optimized thumbnails:", len(list(out_dir.glob("*.webp")))
+          print("Optimized thumbnails:", len(list(out_dir.glob("*.webp"))))
 
       - name: Build web app
         run: npm run build

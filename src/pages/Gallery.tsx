@@ -138,7 +138,7 @@ export default function Gallery() {
           <div className="columns-2 gap-3 md:columns-3 md:gap-4" aria-busy="true">
             {[260, 340, 220, 300, 280, 360].map((h, i) => <div key={i} className="skeleton mb-3 w-full rounded-2xl" style={{ height: h }} />)}
           </div>
-        ) : false ? (
+        ) : (
           <div className="rounded-3xl border border-dashed border-line py-20 text-center text-muted">
             <p className="text-sm">در این دسته هنوز اثری منتشر نشده است.</p>
             <button onClick={() => setCat("all")} className="focus-ring mt-4 text-sm font-semibold text-gold">نمایش همه</button>

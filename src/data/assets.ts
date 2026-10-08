@@ -40,8 +40,8 @@ export const driveImage = (fileName: string, _width = 1600) =>
 /**
 * Local fallback image.
 */
-export const driveThumb = (fileName: string, _width = 1600) =>
-  `/media/gallery/${fileName}`;
+export const driveThumb = (fileName: string, _width = 640) =>
+  `/media/thumbs/${fileName.replace(/\\.jpg$/i, ".webp")}`;
 
 /**
 * Local intro video.
