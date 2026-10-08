@@ -71,7 +71,6 @@ export default function Gallery() {
   const cat: Category = CATEGORIES.some((c) => c.id === catParam) ? catParam : "all";
   const imgParam = params.get("img");
   const visible = useMemo(() => GALLERY.filter((g) => cat === "all" || g.category === cat), [cat]);
-
   const [open, setOpen] = useState<number | null>(null);
 
   useEffect(() => {
@@ -79,6 +78,26 @@ export default function Gallery() {
     const idx = visible.findIndex((g) => g.id === imgParam);
     if (idx >= 0) setOpen(idx);
   }, [imgParam, visible]);
+
+  // Warm the tiny WebP thumbnails shortly after first paint. This keeps the first
+  // render light while making category switches feel instant on Android.
+  useEffect(() => {
+    let cancelled = false;
+    const warm = () => {
+      if (cancelled) return;
+      GALLERY.forEach((item) => {
+        const img = new Image();
+        img.decoding = "async";
+        img.src = item.thumb;
+      });
+    };
+    const idle = (window as Window & { requestIdleCallback?: (cb: () => void) => number }).requestIdleCallback;
+    const timer = idle ? idle(warm) : window.setTimeout(warm, 350);
+    return () => {
+      cancelled = true;
+      if (!idle) window.clearTimeout(timer);
+    };
+  }, []);
 
   const setCat = (c: Category) => {
     const next = new URLSearchParams(params);
@@ -104,7 +123,7 @@ export default function Gallery() {
 
   return (
     <div className="mx-auto max-w-7xl px-3 pb-16 pt-8 sm:px-5 md:pt-12">
-      <header className="px-2 mb-6 md:mb-8">
+      <header className="mb-6 px-2 md:mb-8">
         <p className="eyebrow mb-2">Portfolio</p>
         <h1 className="font-display text-4xl font-extrabold md:text-5xl">گالری</h1>
         <p className="mt-3 max-w-xl text-sm leading-7 text-muted">۱۷ قاب منتخب از پروژه‌های آپ استودیو — برای نمایش تمام‌صفحه روی هر قاب بزنید.</p>
@@ -150,10 +169,10 @@ export default function Gallery() {
               >
                 <SmartImage
                   src={g.thumb}
-                  fallbacks={[g.src, g.fallback]}
+                  fallbacks={[g.src]}
                   alt={g.alt}
-                  loading={i < 4 ? "eager" : "lazy"}
-                  fetchPriority={i < 2 ? "high" : "auto"}
+                  loading={i < 6 ? "eager" : "lazy"}
+                  fetchPriority={i < 3 ? "high" : "auto"}
                   decoding="async"
                   className="w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
                   wrapperClassName="min-h-[120px]"
