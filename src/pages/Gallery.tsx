@@ -79,25 +79,22 @@ export default function Gallery() {
     if (idx >= 0) setOpen(idx);
   }, [imgParam, visible]);
 
-  // Warm the tiny WebP thumbnails shortly after first paint. This keeps the first
-  // render light while making category switches feel instant on Android.
+  // Warm only the first visible batch. Preloading all 17 thumbnails at once
+  // can compete with first paint on slower Android devices.
   useEffect(() => {
-    let cancelled = false;
-    const warm = () => {
-      if (cancelled) return;
-      GALLERY.forEach((item) => {
+    const warm = (items: typeof GALLERY) => {
+      items.slice(0, 6).forEach((item) => {
         const img = new Image();
         img.decoding = "async";
         img.src = item.thumb;
       });
     };
     const idle = (window as Window & { requestIdleCallback?: (cb: () => void) => number }).requestIdleCallback;
-    const timer = idle ? idle(warm) : window.setTimeout(warm, 350);
+    const timer = idle ? idle(() => warm(visible)) : window.setTimeout(() => warm(visible), 250);
     return () => {
-      cancelled = true;
       if (!idle) window.clearTimeout(timer);
     };
-  }, []);
+  }, [visible]);
 
   const setCat = (c: Category) => {
     const next = new URLSearchParams(params);
@@ -175,7 +172,7 @@ export default function Gallery() {
                   fetchPriority={i < 3 ? "high" : "auto"}
                   decoding="async"
                   className="w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-                  wrapperClassName="min-h-[120px]"
+                  wrapperClassName="aspect-[1080/2016] min-h-[120px]"
                 />
                 <div className="pointer-events-none absolute inset-0 flex items-end justify-between bg-gradient-to-t from-black/60 via-transparent to-transparent p-3 opacity-0 transition-opacity group-hover:opacity-100">
                   <span className="text-xs font-bold text-paper">{g.title}</span>
